@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface Business {
   id: string;
@@ -12,6 +12,7 @@ interface Business {
   currency: string;
   locale: string;
   whatsappConnected: boolean;
+  whatsappSessionId: string | null;
   calendarConnected: boolean;
   aiGreeting: string | null;
   aiInstructions: string | null;
@@ -27,6 +28,11 @@ export default function SettingsPage() {
     "general" | "whatsapp" | "calendar" | "ai"
   >("general");
 
+  // WhatsApp state
+  const [waStatus, setWaStatus] = useState<string>("disconnected");
+  const [waQr, setWaQr] = useState<string | null>(null);
+  const [waConnecting, setWaConnecting] = useState(false);
+
   useEffect(() => {
     fetch("/api/business")
       .then((r) => r.json())
@@ -35,6 +41,33 @@ export default function SettingsPage() {
         setLoading(false);
       });
   }, []);
+
+  // Poll WhatsApp status when on the whatsapp tab
+  const pollWhatsApp = useCallback(async () => {
+    try {
+      const res = await fetch("/api/whatsapp/qr");
+      const data = await res.json();
+      setWaStatus(data.status);
+      setWaQr(data.qr || null);
+
+      if (data.status === "connected") {
+        setWaConnecting(false);
+        // Refresh business data
+        const bizRes = await fetch("/api/business");
+        setBusiness(await bizRes.json());
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab !== "whatsapp" || !waConnecting) return;
+
+    // Poll every 2 seconds while connecting
+    const interval = setInterval(pollWhatsApp, 2000);
+    return () => clearInterval(interval);
+  }, [activeTab, waConnecting, pollWhatsApp]);
 
   const handleSave = async () => {
     if (!business) return;
@@ -53,6 +86,25 @@ export default function SettingsPage() {
     if (!business) return;
     setBusiness({ ...business, [field]: value });
     setSaved(false);
+  };
+
+  const startWhatsApp = async () => {
+    setWaConnecting(true);
+    setWaStatus("connecting");
+    await fetch("/api/whatsapp/connect", { method: "POST" });
+    // Start polling for QR
+    setTimeout(pollWhatsApp, 1500);
+  };
+
+  const disconnectWhatsApp = async () => {
+    if (!confirm("¿Desconectar WhatsApp? Tu asistente dejará de responder."))
+      return;
+    await fetch("/api/whatsapp/disconnect", { method: "POST" });
+    setWaStatus("disconnected");
+    setWaQr(null);
+    setWaConnecting(false);
+    const bizRes = await fetch("/api/business");
+    setBusiness(await bizRes.json());
   };
 
   if (loading || !business) {
@@ -81,13 +133,19 @@ export default function SettingsPage() {
             Configura tu consultorio y conexiones
           </p>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="bg-[#25D366] text-white font-semibold px-6 py-2 rounded-lg hover:bg-[#20bd5a] transition text-sm disabled:opacity-50"
-        >
-          {saving ? "Guardando..." : saved ? "✓ Guardado" : "Guardar Cambios"}
-        </button>
+        {activeTab !== "whatsapp" && (
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="bg-[#25D366] text-white font-semibold px-6 py-2 rounded-lg hover:bg-[#20bd5a] transition text-sm disabled:opacity-50"
+          >
+            {saving
+              ? "Guardando..."
+              : saved
+                ? "✓ Guardado"
+                : "Guardar Cambios"}
+          </button>
+        )}
       </div>
 
       {/* Tabs */}
@@ -203,44 +261,149 @@ export default function SettingsPage() {
       {/* WhatsApp Tab */}
       {activeTab === "whatsapp" && (
         <div className="bg-white rounded-xl border border-slate-200 p-6">
-          <div className="text-center py-8">
-            {business.whatsappConnected ? (
-              <div>
-                <p className="text-4xl mb-4">✅</p>
-                <h3 className="text-lg font-semibold text-slate-900">
-                  WhatsApp Conectado
-                </h3>
-                <p className="text-slate-500 text-sm mt-1">
-                  Tu asistente está respondiendo mensajes automáticamente.
-                </p>
-                <button className="mt-4 text-sm text-red-500 hover:text-red-700">
-                  Desconectar WhatsApp
-                </button>
+          {business.whatsappConnected && waStatus !== "qr" ? (
+            /* Connected State */
+            <div className="text-center py-8">
+              <div className="w-20 h-20 bg-[#25D366]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-4xl">✅</span>
               </div>
-            ) : (
-              <div>
-                <p className="text-4xl mb-4">💬</p>
-                <h3 className="text-lg font-semibold text-slate-900">
-                  Conecta tu WhatsApp
-                </h3>
-                <p className="text-slate-500 text-sm mt-2 max-w-md mx-auto">
-                  Escanea el código QR con tu WhatsApp Business para que Servy
-                  pueda responder a tus pacientes automáticamente.
-                </p>
-                <div className="mt-6 w-48 h-48 bg-slate-100 rounded-xl mx-auto flex items-center justify-center">
-                  <p className="text-slate-400 text-sm">
-                    QR Code
-                    <br />
-                    (próximamente)
-                  </p>
-                </div>
-                <p className="text-xs text-slate-400 mt-4">
-                  Abre WhatsApp → Menú → Dispositivos vinculados → Vincular
-                  dispositivo
-                </p>
+              <h3 className="text-lg font-semibold text-slate-900">
+                WhatsApp Conectado
+              </h3>
+              <p className="text-slate-500 text-sm mt-2">
+                Conectado como{" "}
+                <strong>+{business.whatsappSessionId}</strong>
+              </p>
+              <p className="text-[#25D366] text-sm mt-1 font-medium">
+                🤖 Tu asistente está respondiendo mensajes automáticamente
+              </p>
+
+              <div className="mt-8 bg-slate-50 rounded-xl p-4 max-w-md mx-auto text-left">
+                <h4 className="text-sm font-medium text-slate-900 mb-2">
+                  Cómo funciona
+                </h4>
+                <ul className="text-xs text-slate-500 space-y-1.5">
+                  <li>
+                    • Cada mensaje que llega a tu WhatsApp es procesado por
+                    Servy AI
+                  </li>
+                  <li>
+                    • Las citas se agendan automáticamente según tu
+                    disponibilidad
+                  </li>
+                  <li>
+                    • Las conversaciones se guardan en tu panel
+                  </li>
+                  <li>
+                    • Puedes revisar todo en la sección de Conversaciones
+                  </li>
+                </ul>
               </div>
-            )}
-          </div>
+
+              <button
+                onClick={disconnectWhatsApp}
+                className="mt-6 text-sm text-red-500 hover:text-red-700 hover:bg-red-50 px-4 py-2 rounded-lg transition"
+              >
+                Desconectar WhatsApp
+              </button>
+            </div>
+          ) : waStatus === "qr" && waQr ? (
+            /* QR Code State */
+            <div className="text-center py-6">
+              <div className="mb-4">
+                <span className="text-4xl">📱</span>
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900">
+                Escanea el código QR
+              </h3>
+              <p className="text-slate-500 text-sm mt-2 max-w-sm mx-auto">
+                Abre WhatsApp en tu teléfono → Menú (⋮) → Dispositivos
+                vinculados → Vincular dispositivo
+              </p>
+
+              <div className="mt-6 inline-block bg-white p-4 rounded-2xl border-2 border-[#25D366]/20 shadow-lg">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={waQr}
+                  alt="WhatsApp QR Code"
+                  className="w-64 h-64"
+                />
+              </div>
+
+              <div className="mt-4 flex items-center justify-center gap-2 text-sm text-[#25D366]">
+                <div className="w-2 h-2 bg-[#25D366] rounded-full animate-pulse" />
+                Esperando que escanees...
+              </div>
+
+              <button
+                onClick={() => {
+                  setWaConnecting(false);
+                  setWaQr(null);
+                  setWaStatus("disconnected");
+                }}
+                className="mt-4 text-xs text-slate-500 hover:text-slate-700"
+              >
+                Cancelar
+              </button>
+            </div>
+          ) : waStatus === "connecting" ? (
+            /* Connecting State */
+            <div className="text-center py-12">
+              <div className="w-16 h-16 border-4 border-[#25D366]/20 border-t-[#25D366] rounded-full animate-spin mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-slate-900">
+                Conectando...
+              </h3>
+              <p className="text-slate-500 text-sm mt-2">
+                Preparando la conexión con WhatsApp
+              </p>
+            </div>
+          ) : (
+            /* Disconnected State */
+            <div className="text-center py-8">
+              <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-4xl">💬</span>
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900">
+                Conecta tu WhatsApp
+              </h3>
+              <p className="text-slate-500 text-sm mt-2 max-w-md mx-auto">
+                Conecta tu WhatsApp para que Servy pueda responder a tus
+                pacientes automáticamente, 24/7.
+              </p>
+
+              <button
+                onClick={startWhatsApp}
+                className="mt-6 bg-[#25D366] text-white font-semibold px-8 py-3 rounded-xl hover:bg-[#20bd5a] transition-all duration-300 hover:shadow-lg hover:shadow-[#25D366]/25 text-sm inline-flex items-center gap-2"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                </svg>
+                Conectar WhatsApp
+              </button>
+
+              <div className="mt-8 bg-slate-50 rounded-xl p-4 max-w-md mx-auto text-left">
+                <h4 className="text-sm font-medium text-slate-900 mb-2">
+                  ¿Cómo funciona?
+                </h4>
+                <ol className="text-xs text-slate-500 space-y-1.5 list-decimal list-inside">
+                  <li>Haz clic en &quot;Conectar WhatsApp&quot;</li>
+                  <li>Aparecerá un código QR</li>
+                  <li>
+                    Abre WhatsApp en tu teléfono → Menú → Dispositivos
+                    vinculados
+                  </li>
+                  <li>Escanea el código QR</li>
+                  <li>
+                    ¡Listo! Servy empezará a responder automáticamente
+                  </li>
+                </ol>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -250,37 +413,61 @@ export default function SettingsPage() {
           <div className="text-center py-8">
             {business.calendarConnected ? (
               <div>
-                <p className="text-4xl mb-4">✅</p>
+                <div className="w-20 h-20 bg-[#25D366]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-4xl">✅</span>
+                </div>
                 <h3 className="text-lg font-semibold text-slate-900">
                   Google Calendar Conectado
                 </h3>
-                <p className="text-slate-500 text-sm mt-1">
-                  Las citas se sincronizan automáticamente.
+                <p className="text-slate-500 text-sm mt-2">
+                  Las citas se sincronizan automáticamente con tu calendario.
                 </p>
+
+                <div className="mt-6 bg-slate-50 rounded-xl p-4 max-w-md mx-auto text-left">
+                  <h4 className="text-sm font-medium text-slate-900 mb-2">
+                    Sincronización activa
+                  </h4>
+                  <ul className="text-xs text-slate-500 space-y-1.5">
+                    <li>
+                      ✅ Nuevas citas se agregan a tu Google Calendar
+                    </li>
+                    <li>
+                      ✅ Citas canceladas se eliminan del calendario
+                    </li>
+                    <li>
+                      ✅ Eventos existentes en tu calendario bloquean
+                      horarios automáticamente
+                    </li>
+                  </ul>
+                </div>
+
                 <button
                   onClick={async () => {
                     if (!confirm("¿Desconectar Google Calendar?")) return;
                     await fetch("/api/google/disconnect", { method: "POST" });
-                    window.location.reload();
+                    const bizRes = await fetch("/api/business");
+                    setBusiness(await bizRes.json());
                   }}
-                  className="mt-4 text-sm text-red-500 hover:text-red-700"
+                  className="mt-6 text-sm text-red-500 hover:text-red-700 hover:bg-red-50 px-4 py-2 rounded-lg transition"
                 >
                   Desconectar Calendar
                 </button>
               </div>
             ) : (
               <div>
-                <p className="text-4xl mb-4">📅</p>
+                <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-4xl">📅</span>
+                </div>
                 <h3 className="text-lg font-semibold text-slate-900">
                   Conecta tu Google Calendar
                 </h3>
                 <p className="text-slate-500 text-sm mt-2 max-w-md mx-auto">
-                  Conecta tu Google Calendar para que Servy pueda verificar tu
-                  disponibilidad y agendar citas directamente.
+                  Conecta tu Google Calendar para sincronizar citas
+                  automáticamente y respetar tu agenda existente.
                 </p>
                 <a
                   href="/api/google/connect"
-                  className="mt-6 inline-flex bg-white border border-slate-300 text-slate-900 font-medium px-6 py-2.5 rounded-lg hover:bg-slate-50 transition text-sm items-center gap-2"
+                  className="mt-6 inline-flex bg-white border-2 border-slate-200 text-slate-900 font-medium px-6 py-3 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition text-sm items-center gap-3"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path
@@ -300,8 +487,26 @@ export default function SettingsPage() {
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     />
                   </svg>
-                  Conectar con Google
+                  Conectar con Google Calendar
                 </a>
+
+                <div className="mt-8 bg-slate-50 rounded-xl p-4 max-w-md mx-auto text-left">
+                  <h4 className="text-sm font-medium text-slate-900 mb-2">
+                    ¿Qué se sincroniza?
+                  </h4>
+                  <ul className="text-xs text-slate-500 space-y-1.5">
+                    <li>
+                      📅 Las citas agendadas por Servy aparecen en tu calendario
+                    </li>
+                    <li>
+                      🚫 Tus eventos existentes bloquean horarios (reuniones,
+                      almuerzos, etc.)
+                    </li>
+                    <li>
+                      ❌ Al cancelar una cita, se borra del calendario
+                    </li>
+                  </ul>
+                </div>
               </div>
             )}
           </div>
