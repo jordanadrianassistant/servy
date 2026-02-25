@@ -451,7 +451,7 @@ export async function processMessage(
 
   // Call OpenAI
   let response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: "gpt-4.1-mini",
     messages,
     tools,
     temperature: 0.7,
@@ -507,7 +507,7 @@ export async function processMessage(
     }
 
     response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4.1-mini",
       messages: [...messages, ...toolResults],
       tools,
       temperature: 0.7,
