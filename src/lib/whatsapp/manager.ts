@@ -212,6 +212,21 @@ export async function connectWhatsApp(businessId: string) {
   return getConnectionStatus(businessId);
 }
 
+// Send a message to a phone number via a business's WhatsApp connection
+export async function sendMessage(
+  businessId: string,
+  phone: string,
+  text: string
+) {
+  const conn = connections.get(businessId);
+  if (!conn?.socket || conn.status !== "connected") {
+    throw new Error("WhatsApp not connected for this business");
+  }
+
+  const jid = phone.includes("@") ? phone : `${phone}@s.whatsapp.net`;
+  await conn.socket.sendMessage(jid, { text });
+}
+
 // Reconnect businesses that were previously connected (on server restart)
 export async function reconnectAll() {
   const businesses = await db.business.findMany({

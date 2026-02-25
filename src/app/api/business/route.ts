@@ -27,9 +27,11 @@ export async function PUT(req: Request) {
     "aiGreeting",
     "aiInstructions",
     "aiTone",
+    "reminder24h",
+    "reminder1h",
   ];
 
-  const updateData: Record<string, string> = {};
+  const updateData: Record<string, unknown> = {};
   for (const field of allowedFields) {
     if (data[field] !== undefined) {
       updateData[field] = data[field];

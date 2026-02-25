@@ -88,6 +88,10 @@ model Business {
   aiInstructions String?
   aiTone        String  @default("professional")
 
+  // Reminder settings
+  reminder24h  Boolean @default(true)
+  reminder1h   Boolean @default(true)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

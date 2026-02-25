@@ -17,6 +17,8 @@ interface Business {
   aiGreeting: string | null;
   aiInstructions: string | null;
   aiTone: string;
+  reminder24h: boolean;
+  reminder1h: boolean;
 }
 
 export default function SettingsPage() {
@@ -564,6 +566,56 @@ export default function SettingsPage() {
               <option value="casual">Casual</option>
               <option value="formal">Formal</option>
             </select>
+          </div>
+
+          {/* Reminders */}
+          <div className="border-t border-slate-200 pt-4 mt-2">
+            <h4 className="text-sm font-semibold text-slate-900 mb-3">
+              ⏰ Recordatorios Automáticos
+            </h4>
+            <p className="text-xs text-slate-500 mb-4">
+              Envía recordatorios por WhatsApp a tus pacientes antes de su cita.
+            </p>
+            <div className="space-y-3">
+              <label className="flex items-center justify-between p-3 bg-slate-50 rounded-lg cursor-pointer">
+                <div>
+                  <p className="text-sm font-medium text-slate-900">
+                    Recordatorio 24 horas antes
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    Se envía el día anterior a la cita
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={business.reminder24h}
+                  onChange={(e) => {
+                    setBusiness({ ...business, reminder24h: e.target.checked });
+                    setSaved(false);
+                  }}
+                  className="w-5 h-5 rounded border-slate-300 text-[#25D366] focus:ring-[#25D366]"
+                />
+              </label>
+              <label className="flex items-center justify-between p-3 bg-slate-50 rounded-lg cursor-pointer">
+                <div>
+                  <p className="text-sm font-medium text-slate-900">
+                    Recordatorio 1 hora antes
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    Se envía poco antes de la cita con la dirección
+                  </p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={business.reminder1h}
+                  onChange={(e) => {
+                    setBusiness({ ...business, reminder1h: e.target.checked });
+                    setSaved(false);
+                  }}
+                  className="w-5 h-5 rounded border-slate-300 text-[#25D366] focus:ring-[#25D366]"
+                />
+              </label>
+            </div>
           </div>
 
           <div className="bg-slate-50 rounded-lg p-4">
