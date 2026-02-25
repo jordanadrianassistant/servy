@@ -36,7 +36,6 @@ export default function RegisterPage() {
         return;
       }
 
-      // Auto sign in after registration
       const result = await signIn("credentials", {
         email: form.email,
         password: form.password,
@@ -60,81 +59,87 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen gradient-animated flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Grid overlay */}
+      <div className="fixed inset-0 grid-pattern pointer-events-none" />
+      {/* Ambient glow */}
+      <div className="fixed top-[-20%] left-[-10%] w-[500px] h-[500px] bg-[#25D366]/5 rounded-full blur-[120px] pointer-events-none" />
+      <div className="fixed bottom-[-20%] right-[-10%] w-[400px] h-[400px] bg-purple-500/5 rounded-full blur-[120px] pointer-events-none" />
+
+      <div className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
-          <div className="w-12 h-12 bg-[#25D366] rounded-xl flex items-center justify-center font-bold text-white text-xl mx-auto mb-4">
-            S
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900">
-            Crea tu cuenta
-          </h1>
-          <p className="text-slate-500 mt-1">
+          <Link href="/" className="inline-block">
+            <div className="w-14 h-14 bg-gradient-to-br from-[#25D366] to-[#20bd5a] rounded-2xl flex items-center justify-center font-bold text-white text-2xl mx-auto mb-5 shadow-lg shadow-[#25D366]/20">
+              S
+            </div>
+          </Link>
+          <h1 className="text-2xl font-bold text-white">Crea tu cuenta</h1>
+          <p className="text-slate-400 mt-2">
             Empieza a automatizar tu atención al cliente
           </p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-xl border border-slate-200 p-6 space-y-4"
+          className="bg-white/[0.05] backdrop-blur-sm rounded-2xl border border-white/10 p-8 space-y-5"
         >
           {error && (
-            <div className="bg-red-50 text-red-700 text-sm p-3 rounded-lg">
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm p-3 rounded-xl">
               {error}
             </div>
           )}
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label className="block text-sm font-medium text-slate-300 mb-2">
               Tu nombre
             </label>
             <input
               type="text"
               value={form.name}
               onChange={(e) => updateForm("name", e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:border-transparent text-slate-900"
+              className="w-full px-4 py-3 bg-white/[0.05] border border-white/10 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#25D366]/50 focus:border-[#25D366]/50 transition"
               placeholder="Dr. Juan Pérez"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label className="block text-sm font-medium text-slate-300 mb-2">
               Nombre del consultorio
             </label>
             <input
               type="text"
               value={form.businessName}
               onChange={(e) => updateForm("businessName", e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:border-transparent text-slate-900"
+              className="w-full px-4 py-3 bg-white/[0.05] border border-white/10 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#25D366]/50 focus:border-[#25D366]/50 transition"
               placeholder="Clínica Dental Sonrisa"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label className="block text-sm font-medium text-slate-300 mb-2">
               Email
             </label>
             <input
               type="email"
               value={form.email}
               onChange={(e) => updateForm("email", e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:border-transparent text-slate-900"
+              className="w-full px-4 py-3 bg-white/[0.05] border border-white/10 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#25D366]/50 focus:border-[#25D366]/50 transition"
               placeholder="doctor@ejemplo.com"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label className="block text-sm font-medium text-slate-300 mb-2">
               Contraseña
             </label>
             <input
               type="password"
               value={form.password}
               onChange={(e) => updateForm("password", e.target.value)}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#25D366] focus:border-transparent text-slate-900"
+              className="w-full px-4 py-3 bg-white/[0.05] border border-white/10 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#25D366]/50 focus:border-[#25D366]/50 transition"
               placeholder="Mínimo 8 caracteres"
               minLength={8}
               required
@@ -144,13 +149,13 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#25D366] text-white font-semibold py-2.5 rounded-lg hover:bg-[#20bd5a] transition disabled:opacity-50"
+            className="w-full bg-gradient-to-r from-[#25D366] to-[#20bd5a] text-white font-semibold py-3 rounded-xl hover:shadow-lg hover:shadow-[#25D366]/25 transition-all duration-300 disabled:opacity-50 text-sm"
           >
             {loading ? "Creando cuenta..." : "Crear Cuenta Gratis"}
           </button>
         </form>
 
-        <p className="text-center text-sm text-slate-500 mt-4">
+        <p className="text-center text-sm text-slate-500 mt-6">
           ¿Ya tienes cuenta?{" "}
           <Link
             href="/login"

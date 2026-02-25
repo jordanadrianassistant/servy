@@ -257,7 +257,14 @@ export default function SettingsPage() {
                 <p className="text-slate-500 text-sm mt-1">
                   Las citas se sincronizan automáticamente.
                 </p>
-                <button className="mt-4 text-sm text-red-500 hover:text-red-700">
+                <button
+                  onClick={async () => {
+                    if (!confirm("¿Desconectar Google Calendar?")) return;
+                    await fetch("/api/google/disconnect", { method: "POST" });
+                    window.location.reload();
+                  }}
+                  className="mt-4 text-sm text-red-500 hover:text-red-700"
+                >
                   Desconectar Calendar
                 </button>
               </div>
@@ -271,7 +278,10 @@ export default function SettingsPage() {
                   Conecta tu Google Calendar para que Servy pueda verificar tu
                   disponibilidad y agendar citas directamente.
                 </p>
-                <button className="mt-6 bg-white border border-slate-300 text-slate-900 font-medium px-6 py-2.5 rounded-lg hover:bg-slate-50 transition text-sm inline-flex items-center gap-2">
+                <a
+                  href="/api/google/connect"
+                  className="mt-6 inline-flex bg-white border border-slate-300 text-slate-900 font-medium px-6 py-2.5 rounded-lg hover:bg-slate-50 transition text-sm items-center gap-2"
+                >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path
                       fill="#4285F4"
@@ -291,7 +301,7 @@ export default function SettingsPage() {
                     />
                   </svg>
                   Conectar con Google
-                </button>
+                </a>
               </div>
             )}
           </div>

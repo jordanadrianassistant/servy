@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { db } from "./db";
+import { createCalendarEvent, deleteCalendarEvent } from "./google-calendar";
 import type { Business, Service, Availability } from "@prisma/client";
 
 const openai = new OpenAI({
@@ -276,6 +277,29 @@ async function bookAppointment(
     };
   }
 
+  // Get service name for calendar
+  let serviceName = "Cita";
+  if (serviceId) {
+    const service = await db.service.findUnique({ where: { id: serviceId } });
+    if (service) serviceName = service.name;
+  }
+
+  // Create calendar event if connected
+  let calendarEventId: string | null = null;
+  try {
+    const eventId = await createCalendarEvent(
+      businessId,
+      `${serviceName} — ${customerName}`,
+      `Paciente: ${customerName}\nTeléfono: ${customerPhone}`,
+      startTime,
+      endTime,
+      customerPhone
+    );
+    calendarEventId = eventId || null;
+  } catch (err) {
+    console.error("Failed to create calendar event:", err);
+  }
+
   const appointment = await db.appointment.create({
     data: {
       businessId,
@@ -285,6 +309,7 @@ async function bookAppointment(
       endTime,
       serviceId: serviceId || null,
       status: "confirmed",
+      calendarEventId,
     },
   });
 
@@ -317,6 +342,15 @@ async function cancelAppointment(businessId: string, customerPhone: string) {
     where: { id: appointment.id },
     data: { status: "cancelled" },
   });
+
+  // Delete from Google Calendar if exists
+  if (appointment.calendarEventId) {
+    try {
+      await deleteCalendarEvent(businessId, appointment.calendarEventId);
+    } catch (err) {
+      console.error("Failed to delete calendar event:", err);
+    }
+  }
 
   return {
     success: true,
