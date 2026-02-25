@@ -11,8 +11,22 @@ interface Service {
   active: boolean;
 }
 
+interface Business {
+  currency: string;
+}
+
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  USD: "$",
+  CRC: "₡",
+  MXN: "$",
+  COP: "$",
+  GTQ: "Q",
+  HNL: "L",
+};
+
 export default function ServicesPage() {
   const [services, setServices] = useState<Service[]>([]);
+  const [business, setBusiness] = useState<Business | null>(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -23,16 +37,22 @@ export default function ServicesPage() {
     price: "",
   });
 
-  const fetchServices = async () => {
-    const res = await fetch("/api/services");
-    const data = await res.json();
-    setServices(data);
+  const fetchData = async () => {
+    const [servicesRes, businessRes] = await Promise.all([
+      fetch("/api/services"),
+      fetch("/api/business"),
+    ]);
+    setServices(await servicesRes.json());
+    setBusiness(await businessRes.json());
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchServices();
+    fetchData();
   }, []);
+
+  const currency = business?.currency || "USD";
+  const currencySymbol = CURRENCY_SYMBOLS[currency] || "$";
 
   const resetForm = () => {
     setForm({ name: "", description: "", duration: "30", price: "" });
@@ -58,7 +78,7 @@ export default function ServicesPage() {
     }
 
     resetForm();
-    fetchServices();
+    fetchData();
   };
 
   const handleEdit = (service: Service) => {
@@ -79,7 +99,7 @@ export default function ServicesPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id }),
     });
-    fetchServices();
+    fetchData();
   };
 
   const toggleActive = async (service: Service) => {
@@ -88,7 +108,7 @@ export default function ServicesPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: service.id, active: !service.active }),
     });
-    fetchServices();
+    fetchData();
   };
 
   if (loading) {
@@ -105,7 +125,7 @@ export default function ServicesPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900">🏥 Servicios</h1>
           <p className="text-slate-500 mt-1">
-            Configura los servicios que ofreces
+            Configura los servicios que ofreces · Moneda: <strong>{currency}</strong>
           </p>
         </div>
         <button
@@ -173,18 +193,23 @@ export default function ServicesPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-1">
-                Precio (opcional)
+                Precio en {currency} (opcional)
               </label>
-              <input
-                type="number"
-                value={form.price}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, price: e.target.value }))
-                }
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#25D366] text-slate-900"
-                placeholder="50.00"
-                step="0.01"
-              />
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+                  {currencySymbol}
+                </span>
+                <input
+                  type="number"
+                  value={form.price}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, price: e.target.value }))
+                  }
+                  className="w-full pl-8 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#25D366] text-slate-900"
+                  placeholder="50.00"
+                  step="0.01"
+                />
+              </div>
             </div>
             <div className="md:col-span-2 flex gap-2">
               <button
@@ -227,7 +252,7 @@ export default function ServicesPage() {
                   Duración
                 </th>
                 <th className="text-left text-xs font-medium text-slate-500 px-6 py-3">
-                  Precio
+                  Precio ({currency})
                 </th>
                 <th className="text-left text-xs font-medium text-slate-500 px-6 py-3">
                   Estado
@@ -254,7 +279,9 @@ export default function ServicesPage() {
                     {service.duration} min
                   </td>
                   <td className="px-6 py-4 text-sm text-slate-600">
-                    {service.price ? `$${service.price}` : "—"}
+                    {service.price
+                      ? `${currencySymbol}${service.price.toLocaleString()}`
+                      : "—"}
                   </td>
                   <td className="px-6 py-4">
                     <button

@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { db } from "./db";
-import { createCalendarEvent, deleteCalendarEvent } from "./google-calendar";
+import { createCalendarEvent, deleteCalendarEvent, getCalendarEvents } from "./google-calendar";
 import type { Business, Service, Availability } from "@prisma/client";
 
 const openai = new OpenAI({
@@ -22,12 +22,21 @@ const DAYS_ES = [
   "Sábado",
 ];
 
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  USD: "$",
+  CRC: "₡",
+  MXN: "$",
+  COP: "$",
+  GTQ: "Q",
+  HNL: "L",
+};
+
 function buildSystemPrompt(business: BusinessWithRelations): string {
   const servicesText = business.services
     .filter((s) => s.active)
     .map(
       (s) =>
-        `- ${s.name}: ${s.description || "Sin descripción"} (${s.duration} min${s.price ? `, $${s.price} ${business.currency}` : ""})`
+        `- ${s.name}: ${s.description || "Sin descripción"} (${s.duration} min${s.price ? `, ${CURRENCY_SYMBOLS[business.currency] || "$"}${s.price.toLocaleString()} ${business.currency}` : ""})`
     )
     .join("\n");
 
@@ -206,6 +215,32 @@ async function checkAvailability(
     orderBy: { startTime: "asc" },
   });
 
+  // Build list of blocked time ranges (appointments + Google Calendar events)
+  const blockedRanges: { start: Date; end: Date }[] = existingAppointments.map(
+    (apt) => ({
+      start: new Date(apt.startTime),
+      end: new Date(apt.endTime),
+    })
+  );
+
+  // Pull Google Calendar events to block those slots too
+  try {
+    const calendarEvents = await getCalendarEvents(businessId, dayStart, dayEnd);
+    for (const event of calendarEvents) {
+      const eventStart = event.start?.dateTime || event.start?.date;
+      const eventEnd = event.end?.dateTime || event.end?.date;
+      if (eventStart && eventEnd) {
+        blockedRanges.push({
+          start: new Date(eventStart),
+          end: new Date(eventEnd),
+        });
+      }
+    }
+  } catch (err) {
+    console.error("Failed to fetch calendar events for availability:", err);
+    // Continue without calendar blocks — don't break availability check
+  }
+
   // Get service duration
   let duration = 30; // default
   const service = await resolveService(businessId, serviceName);
@@ -223,17 +258,15 @@ async function checkAvailability(
     const slotStart = `${String(Math.floor(current / 60)).padStart(2, "0")}:${String(current % 60).padStart(2, "0")}`;
     const slotEnd = current + duration;
 
-    // Check if slot conflicts with existing appointments
+    // Check if slot conflicts with any blocked range (appointments + calendar events)
     const slotStartDate = new Date(`${date}T${slotStart}:00`);
     const slotEndDate = new Date(
       `${date}T${String(Math.floor(slotEnd / 60)).padStart(2, "0")}:${String(slotEnd % 60).padStart(2, "0")}:00`
     );
 
-    const hasConflict = existingAppointments.some((apt) => {
-      const aptStart = new Date(apt.startTime);
-      const aptEnd = new Date(apt.endTime);
-      return slotStartDate < aptEnd && slotEndDate > aptStart;
-    });
+    const hasConflict = blockedRanges.some(
+      (block) => slotStartDate < block.end && slotEndDate > block.start
+    );
 
     if (!hasConflict) {
       slots.push(slotStart);
