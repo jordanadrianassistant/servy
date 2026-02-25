@@ -100,9 +100,9 @@ const tools: OpenAI.ChatCompletionTool[] = [
             type: "string",
             description: "Fecha en formato YYYY-MM-DD",
           },
-          serviceId: {
+          serviceName: {
             type: "string",
-            description: "ID del servicio solicitado (opcional)",
+            description: "Nombre del servicio solicitado (opcional, tal como aparece en la lista de servicios)",
           },
         },
         required: ["date"],
@@ -125,9 +125,9 @@ const tools: OpenAI.ChatCompletionTool[] = [
             type: "string",
             description: "Número de teléfono del paciente",
           },
-          serviceId: {
+          serviceName: {
             type: "string",
-            description: "ID del servicio",
+            description: "Nombre del servicio (tal como aparece en la lista de servicios)",
           },
           date: {
             type: "string",
@@ -162,10 +162,25 @@ const tools: OpenAI.ChatCompletionTool[] = [
 ];
 
 // Tool implementations
+async function resolveService(businessId: string, serviceName?: string) {
+  if (!serviceName) return null;
+  // Fuzzy match: find service whose name contains the search term (case-insensitive)
+  const services = await db.service.findMany({
+    where: { businessId, active: true },
+  });
+  const lower = serviceName.toLowerCase();
+  return (
+    services.find((s) => s.name.toLowerCase() === lower) ||
+    services.find((s) => s.name.toLowerCase().includes(lower)) ||
+    services.find((s) => lower.includes(s.name.toLowerCase())) ||
+    null
+  );
+}
+
 async function checkAvailability(
   businessId: string,
   date: string,
-  serviceId?: string
+  serviceName?: string
 ) {
   const dayOfWeek = new Date(date + "T12:00:00").getDay();
 
@@ -193,10 +208,8 @@ async function checkAvailability(
 
   // Get service duration
   let duration = 30; // default
-  if (serviceId) {
-    const service = await db.service.findUnique({ where: { id: serviceId } });
-    if (service) duration = service.duration;
-  }
+  const service = await resolveService(businessId, serviceName);
+  if (service) duration = service.duration;
 
   // Calculate available slots
   const [startH, startM] = availability.startTime.split(":").map(Number);
@@ -248,14 +261,12 @@ async function bookAppointment(
   customerPhone: string,
   date: string,
   time: string,
-  serviceId?: string
+  serviceName?: string
 ) {
-  // Get service
+  // Resolve service by name
   let duration = 30;
-  if (serviceId) {
-    const service = await db.service.findUnique({ where: { id: serviceId } });
-    if (service) duration = service.duration;
-  }
+  const service = await resolveService(businessId, serviceName);
+  if (service) duration = service.duration;
 
   const startTime = new Date(`${date}T${time}:00`);
   const endTime = new Date(startTime.getTime() + duration * 60 * 1000);
@@ -278,18 +289,14 @@ async function bookAppointment(
   }
 
   // Get service name for calendar
-  let serviceName = "Cita";
-  if (serviceId) {
-    const service = await db.service.findUnique({ where: { id: serviceId } });
-    if (service) serviceName = service.name;
-  }
+  const calendarServiceName = service?.name || "Cita";
 
   // Create calendar event if connected
   let calendarEventId: string | null = null;
   try {
     const eventId = await createCalendarEvent(
       businessId,
-      `${serviceName} — ${customerName}`,
+      `${calendarServiceName} — ${customerName}`,
       `Paciente: ${customerName}\nTeléfono: ${customerPhone}`,
       startTime,
       endTime,
@@ -307,7 +314,7 @@ async function bookAppointment(
       customerPhone,
       startTime,
       endTime,
-      serviceId: serviceId || null,
+      serviceId: service?.id || null,
       status: "confirmed",
       calendarEventId,
     },
@@ -436,7 +443,7 @@ export async function processMessage(
           result = await checkAvailability(
             businessId,
             args.date,
-            args.serviceId
+            args.serviceName
           );
           break;
         case "book_appointment":
@@ -446,7 +453,7 @@ export async function processMessage(
             args.customerPhone || customerPhone,
             args.date,
             args.time,
-            args.serviceId
+            args.serviceName
           );
           break;
         case "cancel_appointment":
