@@ -2,6 +2,143 @@
 
 :root {
   --servy-green: #25D366;
-  --servy-dark: #0f172a;
+  --servy-green-light: #2EE676;
+  --servy-dark: #0a0f1e;
   --servy-blue: #3b82f6;
+}
+
+/* Glow effects */
+.glow-green {
+  box-shadow: 0 0 60px rgba(37, 211, 102, 0.15),
+    0 0 120px rgba(37, 211, 102, 0.05);
+}
+
+.glow-text {
+  text-shadow: 0 0 40px rgba(37, 211, 102, 0.3);
+}
+
+/* Animated gradient background */
+.gradient-animated {
+  background: linear-gradient(
+    135deg,
+    #0a0f1e 0%,
+    #0d1528 25%,
+    #0a1a2e 50%,
+    #0d1528 75%,
+    #0a0f1e 100%
+  );
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Float animation */
+.float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.float-delayed {
+  animation: float 6s ease-in-out 2s infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+/* Fade in up */
+.fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.fade-in-up-delayed {
+  animation: fadeInUp 0.8s ease-out 0.2s forwards;
+  opacity: 0;
+}
+
+.fade-in-up-delayed-2 {
+  animation: fadeInUp 0.8s ease-out 0.4s forwards;
+  opacity: 0;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pulse dot */
+.pulse-dot {
+  animation: pulseDot 2s ease-in-out infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.5); }
+}
+
+/* Chat bubble animation */
+.chat-bubble {
+  animation: chatBubbleIn 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+.chat-bubble-1 { animation-delay: 0.5s; }
+.chat-bubble-2 { animation-delay: 1.5s; }
+.chat-bubble-3 { animation-delay: 2.5s; }
+.chat-bubble-4 { animation-delay: 3.5s; }
+.chat-bubble-5 { animation-delay: 4.2s; }
+
+@keyframes chatBubbleIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Typing indicator */
+.typing-dot {
+  animation: typingDot 1.4s ease-in-out infinite;
+}
+
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typingDot {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-4px); }
+}
+
+/* Grid pattern */
+.grid-pattern {
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Stat counter */
+.counter-glow {
+  background: linear-gradient(135deg, rgba(37, 211, 102, 0.1), rgba(37, 211, 102, 0.02));
+  border: 1px solid rgba(37, 211, 102, 0.15);
 }
