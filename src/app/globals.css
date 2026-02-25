@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+:root {
+  --servy-green: #25D366;
+  --servy-dark: #0f172a;
+  --servy-blue: #3b82f6;
+}
