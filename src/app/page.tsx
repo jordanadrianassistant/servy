@@ -51,16 +51,16 @@ export default function Home() {
                 Asistente IA para WhatsApp
               </div>
               <h1 className="fade-in-up-delayed text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] mb-6 tracking-tight">
-                Tu recepcionista
+                Recupera tu tiempo.
                 <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#25D366] to-[#2EE676] glow-text">
-                  que nunca duerme
+                  Aumenta tus ingresos.
                 </span>
               </h1>
               <p className="fade-in-up-delayed-2 text-lg md:text-xl text-slate-400 mb-10 max-w-lg leading-relaxed">
-                Servy responde a tus pacientes por WhatsApp 24/7. Agenda citas,
-                reprograma, responde preguntas — mientras tú te enfocas en lo
-                que importa.
+                ¿Cuántas horas al día pierdes respondiendo chats y agendando citas? 
+                Servy es tu asistente de IA que maneja todo por WhatsApp 24/7 — 
+                mientras tú atiendes más pacientes y ganas más dinero.
               </p>
               <div className="fade-in-up-delayed-2 flex flex-col sm:flex-row gap-4">
                 <Link
@@ -85,19 +85,19 @@ export default function Home() {
                   <svg className="w-4 h-4 text-[#25D366]" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
-                  Sin tarjeta
+                  30 USD/mes
                 </span>
                 <span className="flex items-center gap-1.5">
                   <svg className="w-4 h-4 text-[#25D366]" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
-                  Setup en 5 min
+                  Setup 5 min
                 </span>
                 <span className="flex items-center gap-1.5">
                   <svg className="w-4 h-4 text-[#25D366]" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
-                  Cancela cuando quieras
+                  Cancela gratis
                 </span>
               </div>
             </div>
@@ -312,88 +312,268 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Pain Points */}
+        <section id="problema" className="py-20 bg-white/5 border-y border-slate-700/50">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
+                El problema que nadie quiere admitir
+              </h2>
+              <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+                Eres dentista, doctor, veterinario. No contrataste a un recepcionista para gastar dinero 
+                — lo necesitabas porque estabas ahogado. Pero ahora el recepcionista cuesta más de lo que ganas.
+              </p>
+            </div>
+            <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-6">
+                <div className="flex items-start gap-4">
+                  <span className="text-2xl">⏳</span>
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-2">2-3 horas/día en chats</h3>
+                    <p className="text-slate-400">
+                      Respondiendo "Hola", confirmando disponibilidad, preguntando datos del paciente. 
+                      Tiempo que podrías estar atendiendo más gente.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-6">
+                <div className="flex items-start gap-4">
+                  <span className="text-2xl">💰</span>
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-2">Recepcionista = 300-600 USD/mes</h3>
+                    <p className="text-slate-400">
+                      Salary + impuestos + beneficios. Eso sale de tu bolsillo, aunque atiendas pocas citas.
+                      ¿Realmente vale la pena?
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-6">
+                <div className="flex items-start gap-4">
+                  <span className="text-2xl">📉</span>
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-2">30% de no-shows</h3>
+                    <p className="text-slate-400">
+                      Sin recordatorio automático, los pacientes se olvidan. Pierdes 50-100 USD por cita no asistida.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-red-500/10 border border-red-500/30 rounded-2xl p-6">
+                <div className="flex items-start gap-4">
+                  <span className="text-2xl">🤯</span>
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-2">Errores de disponibilidad</h3>
+                    <p className="text-slate-400">
+                      El recepcionista confirma una cita que no hay espacio. O se olvida de actualizar el calendario.
+                      Caos.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Features */}
         <section id="como-funciona" className="py-20">
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-16">
               <p className="text-[#25D366] text-sm font-semibold uppercase tracking-widest mb-3">
-                Funcionalidades
+                La solución
               </p>
               <h2 className="text-3xl md:text-5xl font-bold tracking-tight">
-                Todo lo que necesitas,
+                Tu recepcionista de IA,
                 <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#25D366] to-[#2EE676]">
-                  nada que no
+                  30 USD/mes
                 </span>
               </h2>
             </div>
             <div className="grid md:grid-cols-3 gap-6">
               <FeatureCard
-                icon="💬"
-                title="WhatsApp Automático"
-                description="Conecta tu WhatsApp Business y Servy responde a tus pacientes al instante. A cualquier hora, cualquier día."
+                icon="⏰"
+                title="Libérate de los chats"
+                description="Servy responde instantáneamente 24/7. Tú nunca más tienes que estar pegado al teléfono. 2-3 horas/día de vuelta en tu bolsillo."
                 gradient="from-[#25D366]/20 to-[#128C7E]/5"
               />
               <FeatureCard
                 icon="📅"
-                title="Agenda Inteligente"
-                description="Se sincroniza con Google Calendar. Verifica disponibilidad en tiempo real y agenda sin conflictos."
+                title="Calendario perfecto (sin errores)"
+                description="Se sincroniza con Google Calendar. Nunca más doble booking. La IA verifica disponibilidad en tiempo real."
                 gradient="from-blue-500/20 to-blue-600/5"
               />
               <FeatureCard
-                icon="🧠"
-                title="IA Personalizada"
-                description="Configura el tono, servicios y respuestas. Tu asistente habla como tú quieres — profesional, amigable, o formal."
+                icon="🎯"
+                title="Reducción de no-shows"
+                description="Recordatorios automáticos 24h y 1h antes. Los pacientes no se olvidan. Recupera 30% de citas perdidas."
                 gradient="from-purple-500/20 to-purple-600/5"
               />
               <FeatureCard
-                icon="🔄"
-                title="Reprogramaciones"
-                description="Los pacientes reprograman o cancelan sin llamarte. Todo se actualiza automáticamente en tu calendario."
+                icon="💬"
+                title="Responde como tú"
+                description="Configura tu tono, servicios, precios. Tu voz. No suena como robot — es tu asistente personal."
                 gradient="from-amber-500/20 to-amber-600/5"
               />
               <FeatureCard
-                icon="📊"
-                title="Panel de Control"
-                description="Ve todas las conversaciones, citas y métricas en un dashboard elegante. Siempre sabes qué está pasando."
+                icon="💰"
+                title="Costos bajo control"
+                description="30 USD/mes vs 300-600 USD de recepcionista. Sin empleados, sin impuestos, sin sorpresas. Solo pura ganancia."
                 gradient="from-cyan-500/20 to-cyan-600/5"
               />
               <FeatureCard
-                icon="🌎"
-                title="Hecho para LATAM"
-                description="Español nativo. Zonas horarias, monedas y formatos de tu país. No es una traducción — es local."
+                icon="📊"
+                title="Siempre sabes qué pasa"
+                description="Dashboard en tiempo real. Todas las citas, conversaciones y métricas en un lugar. Control total."
                 gradient="from-rose-500/20 to-rose-600/5"
               />
             </div>
           </div>
         </section>
 
-        {/* How it Works */}
-        <section id="demo" className="py-20">
+        {/* Live Demo Section */}
+        <section id="demo" className="py-20 bg-gradient-to-b from-slate-900/50 to-slate-900/20">
           <div className="max-w-7xl mx-auto px-6">
             <div className="text-center mb-16">
               <p className="text-[#25D366] text-sm font-semibold uppercase tracking-widest mb-3">
-                Rápido y Simple
+                Ver en vivo
+              </p>
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6">
+                Así es una conversación real con Servy
+              </h2>
+              <p className="text-lg text-slate-400 max-w-2xl mx-auto mb-10">
+                No es magia. Es IA entrenada para tu negocio. Mira cómo responde, agenda y confirma citas.
+              </p>
+            </div>
+            
+            <div className="max-w-2xl mx-auto">
+              <div className="bg-[#0b141a] rounded-3xl overflow-hidden border border-slate-700/50 shadow-2xl">
+                {/* Chat header */}
+                <div className="bg-[#1f2c34] px-4 py-3 flex items-center gap-3">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                  <div className="w-10 h-10 bg-gradient-to-br from-[#25D366] to-[#128C7E] rounded-full flex items-center justify-center text-white font-bold">
+                    S
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-white text-sm font-medium">Clínica Dental</p>
+                    <p className="text-[#25D366] text-xs">Escribiendo...</p>
+                  </div>
+                </div>
+
+                {/* Chat messages */}
+                <div className="p-4 space-y-3 min-h-[400px] bg-[#0b141a]">
+                  {/* Patient */}
+                  <div className="flex justify-end">
+                    <div className="bg-[#005c4b] text-white px-3.5 py-2 rounded-xl rounded-tr-sm max-w-xs">
+                      <p className="text-sm">Hola! Necesito una cita para limpieza</p>
+                      <p className="text-xs text-white/50 mt-1">10:15 AM</p>
+                    </div>
+                  </div>
+
+                  {/* Bot */}
+                  <div className="flex justify-start">
+                    <div className="bg-[#1f2c34] text-white px-3.5 py-2 rounded-xl rounded-tl-sm max-w-xs border border-slate-700/30">
+                      <p className="text-sm mb-2">¡Hola! Claro que sí. Te tengo disponibilidad:</p>
+                      <div className="bg-[#0b141a]/50 rounded px-2 py-1.5 space-y-1 text-xs">
+                        <p className="text-[#25D366]">📅 Mañana 09:00 AM</p>
+                        <p className="text-[#25D366]">📅 Mañana 02:00 PM</p>
+                        <p className="text-[#25D366]">📅 Pasado 11:00 AM</p>
+                      </div>
+                      <p className="text-sm mt-2">¿Cuál te queda?</p>
+                      <p className="text-xs text-white/50 mt-1">10:16 AM</p>
+                    </div>
+                  </div>
+
+                  {/* Patient */}
+                  <div className="flex justify-end">
+                    <div className="bg-[#005c4b] text-white px-3.5 py-2 rounded-xl rounded-tr-sm max-w-xs">
+                      <p className="text-sm">Mañana a las 2pm!</p>
+                      <p className="text-xs text-white/50 mt-1">10:17 AM</p>
+                    </div>
+                  </div>
+
+                  {/* Bot - Confirmation */}
+                  <div className="flex justify-start">
+                    <div className="bg-[#1f2c34] text-white px-3.5 py-2 rounded-xl rounded-tl-sm max-w-xs border border-slate-700/30">
+                      <p className="text-sm mb-2">✅ Perfecto! Tu cita está confirmada:</p>
+                      <div className="bg-[#0b141a]/50 rounded px-2 py-1.5 space-y-0.5 text-xs mb-2">
+                        <p>📅 Mañana, 26 de Febrero</p>
+                        <p>🕐 02:00 PM</p>
+                        <p>🦷 Limpieza Dental</p>
+                        <p>💰 $75 USD</p>
+                      </div>
+                      <p className="text-sm">Te enviaré un recordatorio mañana. ¡Nos vemos! 😊</p>
+                      <p className="text-xs text-white/50 mt-1">10:17 AM</p>
+                    </div>
+                  </div>
+
+                  {/* Patient */}
+                  <div className="flex justify-end">
+                    <div className="bg-[#005c4b] text-white px-3.5 py-2 rounded-xl rounded-tr-sm max-w-xs">
+                      <p className="text-sm">Perfecto! Gracias! 🙌</p>
+                      <p className="text-xs text-white/50 mt-1">10:18 AM</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Input */}
+                <div className="bg-[#1f2c34] px-3 py-2.5 flex items-center gap-2">
+                  <div className="flex-1 bg-[#2a3942] rounded-full px-4 py-2">
+                    <p className="text-slate-500 text-sm">Mensaje</p>
+                  </div>
+                  <div className="w-10 h-10 bg-[#25D366] rounded-full flex items-center justify-center cursor-pointer hover:bg-[#20bd5a] transition">
+                    <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+
+              {/* Call to action below demo */}
+              <div className="text-center mt-10">
+                <p className="text-slate-400 mb-4">¿Ves? Sin esperas. Sin confusión. Sin necesidad de un recepcionista.</p>
+                <Link
+                  href="/register"
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-[#25D366] to-[#20bd5a] text-white font-semibold px-8 py-3 rounded-xl hover:shadow-lg hover:shadow-[#25D366]/25 transition-all duration-300 hover:-translate-y-0.5"
+                >
+                  Prueba gratis ahora
+                  <span>→</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* How it Works */}
+        <section className="py-20">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="text-center mb-16">
+              <p className="text-[#25D366] text-sm font-semibold uppercase tracking-widest mb-3">
+                Empieza hoy
               </p>
               <h2 className="text-3xl md:text-5xl font-bold tracking-tight">
-                3 pasos para empezar
+                3 pasos. 5 minutos. Fin de los chats.
               </h2>
             </div>
             <div className="grid md:grid-cols-3 gap-8">
               <StepCard
                 number="1"
                 title="Crea tu cuenta"
-                description="Registra tu consultorio, agrega tus servicios, define horarios y precios. Toma menos de 5 minutos."
+                description="Tu nombre, teléfono, servicios y horarios. Servy aprende cómo eres y qué ofreces."
               />
               <StepCard
                 number="2"
                 title="Conecta WhatsApp"
-                description="Escanea un código QR con tu teléfono. Listo — tu asistente empieza a responder al instante."
+                description="Escanea un QR. Tu número queda vinculado. Listo — tu IA empieza a trabajar."
               />
               <StepCard
                 number="3"
-                title="Relájate"
-                description="Servy se encarga del resto. Tú recibes pacientes con citas confirmadas. Sin estrés."
+                title="Observa cómo funciona"
+                description="Los pacientes escriben. Servy responde. Citas se confirman. Recordatorios se envían. Tú descansas."
               />
             </div>
           </div>
