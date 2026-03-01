@@ -84,16 +84,16 @@ export default async function DashboardHome() {
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <StatCard label="Citas Hoy" value={String(todayAppointments.length)} />
         <StatCard label="Confirmadas" value={String(confirmedToday)} />
         <StatCard label="Pendientes" value={String(pendingToday)} />
         <StatCard label="Conversaciones" value={String(totalConversations)} />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      <div className="grid md:grid-cols-2 gap-6">
         {/* Today's Appointments */}
-        <div className="bg-white rounded-xl border border-slate-200 p-4 md:p-6">
+        <div className="bg-white rounded-xl border border-slate-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-slate-900">
               📅 Citas de Hoy
@@ -114,9 +114,9 @@ export default async function DashboardHome() {
               {todayAppointments.map((apt) => (
                 <div
                   key={apt.id}
-                  className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 md:gap-4 md:p-3"
+                  className="flex items-center gap-4 p-3 rounded-lg hover:bg-slate-50"
                 >
-                  <span className="text-sm font-mono text-slate-500 w-10 md:w-12">
+                  <span className="text-sm font-mono text-slate-500 w-12">
                     {new Date(apt.startTime).toLocaleTimeString("es", {
                       hour: "2-digit",
                       minute: "2-digit",
@@ -152,7 +152,7 @@ export default async function DashboardHome() {
         </div>
 
         {/* Recent Conversations */}
-        <div className="bg-white rounded-xl border border-slate-200 p-4 md:p-6">
+        <div className="bg-white rounded-xl border border-slate-200 p-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-slate-900">
               💬 Conversaciones Recientes
@@ -173,7 +173,7 @@ export default async function DashboardHome() {
               {recentConversations.map((conv) => (
                 <div
                   key={conv.id}
-                  className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-slate-50 md:flex-row md:items-start md:gap-3 md:p-3"
+                  className="flex items-start gap-3 p-3 rounded-lg hover:bg-slate-50"
                 >
                   <div className="w-8 h-8 bg-[#25D366]/10 rounded-full flex items-center justify-center text-sm flex-shrink-0">
                     {(conv.customerName || conv.customerPhone).charAt(0)}
@@ -194,7 +194,7 @@ export default async function DashboardHome() {
       </div>
 
       {/* Connection Status */}
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+      <div className="mt-6 grid md:grid-cols-2 gap-6">
         <ConnectionCard
           service="WhatsApp"
           icon="💬"
@@ -246,7 +246,7 @@ function ChecklistItem({
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-4 md:p-6">
+    <div className="bg-white rounded-xl border border-slate-200 p-6">
       <p className="text-sm text-slate-500">{label}</p>
       <p className="text-3xl font-bold text-slate-900 mt-1">{value}</p>
     </div>
@@ -269,7 +269,7 @@ function ConnectionCard({
   return (
     <Link
       href={href}
-      className="bg-white rounded-xl border border-slate-200 p-4 md:p-6 flex items-center justify-between hover:border-slate-300 transition"
+      className="bg-white rounded-xl border border-slate-200 p-6 flex items-center justify-between hover:border-slate-300 transition"
     >
       <div className="flex items-center gap-4">
         <span className="text-2xl">{icon}</span>
