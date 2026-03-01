@@ -58,8 +58,29 @@ export async function POST(req: Request) {
     );
   } catch (error) {
     console.error("Registration error:", error);
+    const message =
+      error instanceof Error ? error.message : "Error desconocido";
+    // Surface specific known errors
+    if (message.includes("password") && message.includes("short")) {
+      return NextResponse.json(
+        { error: "La contraseña es muy corta, mínimo 8 caracteres" },
+        { status: 400 }
+      );
+    }
+    if (message.includes("Unique constraint") || message.includes("unique")) {
+      return NextResponse.json(
+        { error: "Ya existe una cuenta con ese email" },
+        { status: 400 }
+      );
+    }
+    if (message.includes("connect") || message.includes("ECONNREFUSED") || message.includes("P1001")) {
+      return NextResponse.json(
+        { error: "No se pudo conectar a la base de datos. Intenta de nuevo." },
+        { status: 503 }
+      );
+    }
     return NextResponse.json(
-      { error: "Error al crear la cuenta" },
+      { error: `Error al crear la cuenta: ${message}` },
       { status: 500 }
     );
   }
