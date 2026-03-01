@@ -170,6 +170,7 @@ model Conversation {
 
   business Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
   messages Message[]
+  analysis ConversationAnalysis?
 
   @@unique([businessId, customerPhone])
 }
@@ -182,6 +183,18 @@ model Message {
   metadata       String? // JSON for extra info
 
   createdAt DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+}
+
+model ConversationAnalysis {
+  id                    String   @id @default(cuid())
+  conversationId        String   @unique
+  score                 Int      // 1-5
+  summary               String
+  botRecommendations    String   // JSON array of strings
+  doctorRecommendations String   // JSON array of strings
+  analyzedAt            DateTime @default(now())
 
   conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
 }

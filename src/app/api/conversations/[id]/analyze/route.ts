@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { getCurrentBusiness } from "@/lib/session";
 import { db } from "@/lib/db";
+import { getCurrentBusiness } from "@/lib/session";
+import { analyzeConversation } from "@/lib/conversation-analysis";
 
-export async function GET(
+export async function POST(
   _req: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -20,15 +21,11 @@ export async function GET(
     return NextResponse.json({ error: "No encontrado" }, { status: 404 });
   }
 
-  const [messages, analysis] = await Promise.all([
-    db.message.findMany({
-      where: { conversationId: id },
-      orderBy: { createdAt: "asc" },
-    }),
-    db.conversationAnalysis.findUnique({
-      where: { conversationId: id },
-    }),
-  ]);
-
-  return NextResponse.json({ messages, analysis });
+  try {
+    const analysis = await analyzeConversation(id);
+    return NextResponse.json(analysis);
+  } catch (error) {
+    console.error("Error analyzing conversation:", error);
+    return NextResponse.json({ error: "Error al analizar conversación" }, { status: 500 });
+  }
 }
